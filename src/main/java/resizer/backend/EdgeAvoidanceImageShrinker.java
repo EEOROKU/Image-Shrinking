@@ -1,7 +1,10 @@
 package resizer.backend;
 
 import java.util.function.BiFunction;
+/** The following methods were developed using GPT:
 
+ - LowEnergyPath()
+ **/
 
 /**
  * Class to shrink an image by removing a strip of pixels from the top of
@@ -73,10 +76,53 @@ public class EdgeAvoidanceImageShrinker {
      * @return the low energy path as an array of columns in order from the top of the image to the bottom
      */
     public int[] lowEnergyPath() {
+        int[][] energyTo = new int[width][height];
+        int[][] edgeTo = new int[width][height];
 
-        //TODO Complete this method to compute the low energy path
-        return new int[energyImage[0].length];
+        // initialize energyTo with the first row of energyImage
+        for (int x = 0; x < width; x++) {
+            energyTo[x][0] = energyImage[x][0];
+        }
+
+        // for each row, starting from the second row
+        for (int y = 1; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                // calculate the cumulative minimum energy for this pixel
+                int minPreviousEnergy = Integer.MAX_VALUE;
+                for (int dx = -1; dx <= 1; dx++) {
+                    int previousX = x + dx;
+                    if (previousX >= 0 && previousX < width) {
+                        if (energyTo[previousX][y - 1] < minPreviousEnergy) {
+                            minPreviousEnergy = energyTo[previousX][y - 1];
+                            edgeTo[x][y] = previousX;
+                        }
+                    }
+                }
+                energyTo[x][y] = energyImage[x][y] + minPreviousEnergy;
+            }
+        }
+
+        // find the end of the minimum energy path in the last row
+        int minEnergy = Integer.MAX_VALUE;
+        int minEnergyX = -1;
+        for (int x = 0; x < width; x++) {
+            if (energyTo[x][height - 1] < minEnergy) {
+                minEnergy = energyTo[x][height - 1];
+                minEnergyX = x;
+            }
+        }
+
+        // trace back the path from bottom to top
+        int[] path = new int[height];
+        for (int y = height - 1; y >= 0; y--) {
+            path[y] = minEnergyX;
+            minEnergyX = edgeTo[minEnergyX][y];
+        }
+
+        return path;
     }
+
+
 
     /**
      * Perform a 3x3 convolution between G and A
@@ -202,4 +248,5 @@ public class EdgeAvoidanceImageShrinker {
             }
         }
     }
+
 }
