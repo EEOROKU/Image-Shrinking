@@ -162,8 +162,30 @@ public class EdgeAvoidanceImageShrinker {
          */
 
         //TODO Complete this method (it will look very similar to the sobel method)
+        int xMinus1 = x > 0? x-1: width-1;
+        int yMinus1 = y > 0? y-1:height-1;
+        int xPlus1 = (x+1) % width;
+        int yPlus1 = (y+1) % height;
 
-        return 0;
+        int[][] A = { {img[xMinus1][yMinus1],img[x][yMinus1],    img[xPlus1][yMinus1]},
+                {img[xMinus1][y],      img[x][y],          img[xPlus1][y] },
+                {img[xMinus1][yPlus1], img[x][yPlus1],     img[x][yPlus1] } };
+        int[][] kernelX = { {1,0,-1},
+                {1,0,-1},
+                {1,0,-1} };
+
+        int[][] kernelY = { {1,1,1},
+                {0,0,0},
+                {-1,-1,-1} };
+
+        //gradients in x and y directions
+        int Gx = convolve3x3(kernelX, A);
+        int Gy = convolve3x3(kernelY, A);
+
+        //round to integer
+        return (int)Math.round(Math.sqrt(Gx*Gx + Gy*Gy));
+
+
     }
 
 
