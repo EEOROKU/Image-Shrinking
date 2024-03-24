@@ -1,4 +1,4 @@
-# Assignment Image Shrinking
+# Image Shrinking
 
 In this assignment you will build the backend for an image shrinking application.
 
